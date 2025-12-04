@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UniTutor: Math & Chemistry</title>
+    <title>Quizzy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       rel="stylesheet"
@@ -11,6 +11,21 @@
       integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
       crossorigin="anonymous"
     />
+    <style>
+      /* Cyberpunk scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #09090b; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3f3f46; 
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #eab308; 
+      }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -26,7 +41,7 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 text-slate-900 font-sans antialiased">
+  <body class="bg-[#050505] text-zinc-300 font-sans antialiased selection:bg-yellow-400 selection:text-black">
     <div id="root"></div>
   </body>
 </html>

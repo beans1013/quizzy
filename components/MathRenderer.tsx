@@ -10,13 +10,14 @@ interface MathRendererProps {
 
 const MathRenderer: React.FC<MathRendererProps> = ({ content, className = '' }) => {
   return (
-    <div className={`prose prose-slate dark:prose-invert max-w-none ${className}`}>
+    <div className={`prose prose-invert prose-p:leading-relaxed max-w-none ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
             p: ({node, ...props}) => <p className="mb-2" {...props} />,
-            // Ensure inline math is rendered correctly if needed, though default usually works well
+            strong: ({node, ...props}) => <strong className="text-yellow-400 font-bold" {...props} />,
+            code: ({node, ...props}) => <code className="bg-zinc-800 text-cyan-400 px-1 py-0.5 rounded-none" {...props} />
         }}
       >
         {content}

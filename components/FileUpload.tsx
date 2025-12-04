@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, FileJson, AlertCircle } from 'lucide-react';
+import { Upload, FileJson, AlertTriangle } from 'lucide-react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -22,7 +22,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) =
 
   const validateAndUpload = (file: File) => {
     if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-      setError('Please upload a valid JSON file.');
+      setError('INVALID_FILE_TYPE: DETECTED_NON_JSON');
       return;
     }
     setError(null);
@@ -46,12 +46,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) =
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full font-mono">
       <div 
-        className={`relative group flex flex-col items-center justify-center w-full h-full min-h-[300px] rounded-2xl border-4 border-dashed transition-all duration-300 ease-in-out
-          ${dragActive 
-            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 scale-102' 
-            : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-750'}
+        className={`relative group flex flex-col items-center justify-center w-full h-full min-h-[300px] border-2 border-dashed transition-all duration-150 ease-out
+          ${dragActive ? 'border-yellow-400 bg-yellow-400/5' : 'border-zinc-700 bg-zinc-900/50 hover:border-cyan-400 hover:bg-zinc-900'}
           ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
         `}
         onDragEnter={handleDrag}
@@ -59,22 +57,27 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) =
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-          <div className={`p-4 rounded-full mb-4 transition-colors ${dragActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 group-hover:text-indigo-500 dark:group-hover:text-indigo-400'}`}>
-            <Upload className="w-10 h-10" />
+        {/* Corner Decals */}
+        <div className={`absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 transition-colors ${dragActive ? 'border-yellow-400' : 'border-zinc-500 group-hover:border-cyan-400'}`}></div>
+        <div className={`absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 transition-colors ${dragActive ? 'border-yellow-400' : 'border-zinc-500 group-hover:border-cyan-400'}`}></div>
+        <div className={`absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 transition-colors ${dragActive ? 'border-yellow-400' : 'border-zinc-500 group-hover:border-cyan-400'}`}></div>
+        <div className={`absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 transition-colors ${dragActive ? 'border-yellow-400' : 'border-zinc-500 group-hover:border-cyan-400'}`}></div>
+
+        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4 z-10">
+          <div className={`p-4 mb-4 transition-colors ${dragActive ? 'text-yellow-400' : 'text-zinc-500 group-hover:text-cyan-400'}`}>
+            <Upload className="w-12 h-12" strokeWidth={1.5} />
           </div>
-          <p className="mb-2 text-xl font-semibold text-slate-700 dark:text-slate-200">
-            {isProcessing ? 'Parsing JSON...' : 'Upload Quiz JSON'}
+          <p className="mb-2 text-xl font-bold uppercase tracking-widest text-zinc-300 group-hover:text-white">
+            {isProcessing ? 'INITIALIZING UPLOAD...' : 'INSERT DATA SHARD'}
           </p>
-          <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-            Drag and drop the generated JSON file here
+          <p className="mb-6 text-xs text-zinc-500 font-mono tracking-wider">
+            [ DROP JSON FILE TO UPLOAD ]
           </p>
-          <label className="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden font-medium text-indigo-600 dark:text-indigo-400 transition duration-300 ease-out border-2 border-indigo-600 dark:border-indigo-400 rounded-lg shadow-md group cursor-pointer hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white dark:hover:text-white">
-            <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-indigo-600 dark:bg-indigo-500 group-hover:translate-x-0 ease">
-              <FileJson className="w-5 h-5" />
+          <label className="relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-bold text-black transition duration-300 ease-out bg-yellow-400 hover:bg-yellow-300 active:bg-yellow-500 cursor-pointer clip-path-polygon">
+            <span className="flex items-center space-x-2">
+                <FileJson className="w-4 h-4" />
+                <span>SELECT FILE</span>
             </span>
-            <span className="absolute flex items-center justify-center w-full h-full text-indigo-600 dark:text-indigo-400 transition-all duration-300 transform group-hover:translate-x-full ease">Select JSON</span>
-            <span className="relative invisible">Select JSON</span>
             <input 
               type="file" 
               className="hidden" 
@@ -87,9 +90,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) =
       </div>
       
       {error && (
-        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center text-red-700 dark:text-red-300 animate-fade-in">
-          <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span>{error}</span>
+        <div className="mt-4 p-4 bg-red-950/30 border border-red-500 flex items-center text-red-500 animate-pulse font-bold tracking-tight">
+          <AlertTriangle className="w-5 h-5 mr-3 flex-shrink-0" />
+          <span>ERROR :: {error}</span>
         </div>
       )}
     </div>

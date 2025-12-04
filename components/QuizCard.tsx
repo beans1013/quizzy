@@ -1,7 +1,7 @@
 import React from 'react';
 import { Question } from '../types';
 import MathRenderer from './MathRenderer';
-import { CheckCircle2, XCircle, Circle } from 'lucide-react';
+import { Check, X, Circle, Square } from 'lucide-react';
 
 interface QuizCardProps {
   question: Question;
@@ -17,46 +17,53 @@ const QuizCard: React.FC<QuizCardProps> = ({
   showResult 
 }) => {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6 transition-all hover:shadow-md dark:hover:shadow-slate-900/50">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Question {question.id}</h3>
+    <div className="relative bg-zinc-900 border border-zinc-700 p-6 mb-8 group hover:border-zinc-500 transition-colors">
+      {/* Decorative Label */}
+      <div className="absolute -top-3 left-4 bg-zinc-900 px-2 text-xs font-mono text-zinc-500 border border-zinc-700">
+        Q_ID::{String(question.id).padStart(3, '0')}
+      </div>
+
+      <div className="flex justify-between items-start mb-6 mt-2">
+        <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+           <span className="text-yellow-400 mr-2">/</span>Question {question.id}
+        </h3>
         {showResult && (
-          <div className="flex items-center">
+          <div className="flex items-center font-mono text-sm tracking-wider uppercase">
             {selectedOptionIndex === question.correctAnswerIndex ? (
-              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-1" /> Correct
+              <span className="px-3 py-1 bg-green-900/30 text-green-400 border border-green-500 flex items-center shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                <Check className="w-4 h-4 mr-2" /> CORRECT
               </span>
             ) : (
-              <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium flex items-center">
-                <XCircle className="w-4 h-4 mr-1" /> Incorrect
+              <span className="px-3 py-1 bg-red-900/30 text-red-500 border border-red-500 flex items-center shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                <X className="w-4 h-4 mr-2" /> ERROR
               </span>
             )}
           </div>
         )}
       </div>
 
-      <div className="mb-6 text-slate-700 dark:text-slate-300 text-lg">
+      <div className="mb-8 text-zinc-300 text-lg leading-relaxed">
         <MathRenderer content={question.text} />
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {question.options.map((option, index) => {
-          let optionStyle = "border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-750";
-          let icon = <Circle className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
+          let optionStyle = "border-zinc-700 text-zinc-400 hover:border-yellow-400 hover:text-white hover:bg-zinc-800";
+          let icon = <Square className="w-4 h-4 text-zinc-600" />;
           
           if (showResult) {
             if (index === question.correctAnswerIndex) {
-              optionStyle = "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600";
-              icon = <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />;
+              optionStyle = "border-green-500 bg-green-900/10 text-green-400";
+              icon = <Check className="w-4 h-4 text-green-400" />;
             } else if (index === selectedOptionIndex && index !== question.correctAnswerIndex) {
-              optionStyle = "border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600";
-              icon = <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />;
+              optionStyle = "border-red-500 bg-red-900/10 text-red-500";
+              icon = <X className="w-4 h-4 text-red-500" />;
             } else {
-              optionStyle = "border-slate-100 dark:border-slate-700 opacity-60";
+              optionStyle = "border-zinc-800 text-zinc-600 opacity-50";
             }
           } else if (selectedOptionIndex === index) {
-            optionStyle = "border-indigo-600 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 ring-1 ring-indigo-600 dark:ring-indigo-400";
-            icon = <div className="w-5 h-5 rounded-full border-[5px] border-indigo-600 dark:border-indigo-400" />;
+            optionStyle = "border-yellow-400 bg-yellow-400/10 text-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.15)]";
+            icon = <div className="w-4 h-4 bg-yellow-400" />;
           }
 
           return (
@@ -64,21 +71,25 @@ const QuizCard: React.FC<QuizCardProps> = ({
               key={index}
               onClick={() => !showResult && onSelectOption(index)}
               disabled={showResult}
-              className={`w-full text-left p-4 rounded-lg border-2 transition-all flex items-start gap-4 ${optionStyle}`}
+              className={`w-full text-left p-4 border-2 transition-all duration-200 flex items-start gap-4 ${optionStyle}`}
             >
-              <div className="mt-1 flex-shrink-0">{icon}</div>
-              <div className="flex-grow">
-                <MathRenderer content={option} className="text-slate-800 dark:text-slate-200" />
+              <div className="mt-1 flex-shrink-0 font-mono text-xs opacity-70">
+                 {String.fromCharCode(65 + index)} //
               </div>
+              <div className="flex-grow">
+                <MathRenderer content={option} className={showResult && index === question.correctAnswerIndex ? "text-green-400" : ""} />
+              </div>
+              <div className="mt-1 flex-shrink-0">{icon}</div>
             </button>
           );
         })}
       </div>
 
       {showResult && (
-        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 animate-fade-in-up">
-          <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Explanation</h4>
-          <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 text-slate-800 dark:text-slate-200 border border-indigo-100 dark:border-indigo-900/50">
+        <div className="mt-8 pt-6 border-t border-zinc-800 animate-fade-in relative">
+           <div className="absolute top-0 left-0 w-8 h-[1px] bg-yellow-400"></div>
+          <h4 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest mb-3">Analysis // Explanation</h4>
+          <div className="bg-zinc-950/50 border-l-2 border-cyan-400 p-4 text-zinc-300">
              <MathRenderer content={question.explanation} />
           </div>
         </div>

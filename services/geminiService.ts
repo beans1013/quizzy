@@ -28,10 +28,12 @@ IMPORTANT: Return the response strictly as a raw JSON object with the following 
   ]
 }`;
 
-const cleanAndParse = (text: string): QuizData => {
+export const parseQuizString = (text: string): QuizData => {
+  try {
     // Remove markdown code blocks if the AI added them (e.g. ```json ... ```)
-    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    const json = JSON.parse(cleanedText);
+    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    const json = JSON.parse(cleanText);
     
     // Basic schema validation
     if (!json.title || !Array.isArray(json.questions)) {
@@ -45,17 +47,13 @@ const cleanAndParse = (text: string): QuizData => {
             throw new Error("Invalid Question structure in JSON.");
         }
     }
+    
     return json as QuizData;
+  } catch (error) {
+    console.error("JSON Parse Error:", error);
+    throw new Error("Failed to parse JSON. Please ensure the content is valid JSON matching the template.");
+  }
 };
-
-export const parseQuizString = (text: string): QuizData => {
-    try {
-        return cleanAndParse(text);
-    } catch (error) {
-        console.error("JSON Parse Error:", error);
-        throw new Error("Failed to parse JSON text. Please ensure it is valid JSON matching the template.");
-    }
-}
 
 export const parseQuizJSON = (file: File): Promise<QuizData> => {
   return new Promise((resolve, reject) => {
@@ -63,11 +61,10 @@ export const parseQuizJSON = (file: File): Promise<QuizData> => {
     reader.onload = (e) => {
       try {
         const text = e.target?.result as string;
-        const data = cleanAndParse(text);
+        const data = parseQuizString(text);
         resolve(data);
       } catch (error) {
-        console.error("JSON Parse Error:", error);
-        reject(new Error("Failed to parse JSON file. Please ensure the file contains valid JSON matching the template."));
+        reject(error instanceof Error ? error : new Error("Failed to parse JSON file"));
       }
     };
     reader.onerror = () => reject(new Error("Failed to read file."));

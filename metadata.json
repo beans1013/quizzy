@@ -1,5 +1,5 @@
 {
-  "name": "UniTutor: Math & Chem AI",
+  "name": "Quizzy",
   "description": "An intelligent university-level tutor that converts PDF exams into interactive, graded multiple-choice quizzes with AI-generated distractors and explanations.",
   "requestFramePermissions": []
 }
