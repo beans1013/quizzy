@@ -1,112 +1,76 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { QuizData } from "../types";
 
-const processFileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      // Remove data URL prefix (e.g., "data:application/pdf;base64,")
-      const base64 = result.split(',')[1];
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+export const PROMPT_TEMPLATE = `You are an expert University Tutor in Mathematics and Chemistry.
+Analyze the content provided by the user.
+Create a Multiple Choice Quiz (MCQ) based on the key concepts, problems, and formulas.
 
-export const generateQuizFromPDF = async (file: File): Promise<QuizData> => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error("API Key is missing.");
-  }
+Requirements:
+1. Generate 5 to 8 challenging questions.
+2. For math/chem problems, ensure answers are calculated precisely.
+3. Generate 4 options for each question:
+   - One option must be the correct answer.
+   - The other three options must be "distractors": plausible but incorrect answers.
+4. Provide a clear, step-by-step explanation for the correct solution.
+5. Format all math/chemical formulas in the question, options, and explanation using standard LaTeX enclosed in single dollar signs (e.g., $E=mc^2$).
 
-  const ai = new GoogleGenAI({ apiKey });
-  const base64Data = await processFileToBase64(file);
+IMPORTANT: Return the response strictly as a raw JSON object with the following structure:
 
-  // Using gemini-3-pro-preview for complex reasoning in Math/Chem
-  const modelId = "gemini-3-pro-preview";
+{
+  "title": "Quiz Title",
+  "questions": [
+    {
+      "id": 1,
+      "text": "Question text including LaTeX...",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswerIndex": 0,
+      "explanation": "Detailed explanation..."
+    }
+  ]
+}`;
 
-  const prompt = `
-    You are an expert University Tutor in Mathematics and Chemistry. 
-    Analyze the attached exam PDF deeply. 
-    Create a Multiple Choice Quiz (MCQ) based on the key concepts, problems, and formulas found in the document.
+const cleanAndParse = (text: string): QuizData => {
+    // Remove markdown code blocks if the AI added them (e.g. ```json ... ```)
+    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const json = JSON.parse(cleanedText);
     
-    Requirements:
-    1. Extract or synthesize 5 to 8 challenging questions. 
-    2. For math/chem problems, ensure the answers are calculated precisely.
-    3. IMPORTANT: You must generate 4 options for each question.
-       - One option must be the correct answer.
-       - The other three options must be "distractors": plausible but incorrect answers derived from common student mistakes (e.g., sign errors, wrong formula application, stoichiometry errors).
-    4. Provide a clear, step-by-step explanation for the correct solution using LaTeX for formulas where appropriate.
-    5. Format all math/chemical formulas in the question, options, and explanation using standard LaTeX enclosed in single dollar signs (e.g., $E=mc^2$).
-    
-    Return the response strictly as a JSON object matching the defined schema.
-  `;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: modelId,
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: base64Data,
-            },
-          },
-          { text: prompt },
-        ],
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            title: {
-              type: Type.STRING,
-              description: "A suitable title for the quiz based on the PDF content",
-            },
-            questions: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  id: { type: Type.INTEGER },
-                  text: { type: Type.STRING, description: "The question text, including LaTeX." },
-                  options: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING },
-                    description: "Array of 4 options strings (including LaTeX)."
-                  },
-                  correctAnswerIndex: { 
-                    type: Type.INTEGER, 
-                    description: "The index (0-3) of the correct option." 
-                  },
-                  explanation: { 
-                    type: Type.STRING,
-                    description: "Detailed explanation of the solution."
-                  }
-                },
-                required: ["id", "text", "options", "correctAnswerIndex", "explanation"],
-              },
-            },
-          },
-          required: ["title", "questions"],
-        },
-      },
-    });
-
-    const text = response.text;
-    if (!text) {
-      throw new Error("No response received from Gemini.");
+    // Basic schema validation
+    if (!json.title || !Array.isArray(json.questions)) {
+      throw new Error("Invalid JSON structure: Missing 'title' or 'questions' array.");
     }
     
-    const data = JSON.parse(text) as QuizData;
-    return data;
+    // Validate first question structure lightly
+    if (json.questions.length > 0) {
+        const q = json.questions[0];
+        if (!q.text || !Array.isArray(q.options) || typeof q.correctAnswerIndex !== 'number') {
+            throw new Error("Invalid Question structure in JSON.");
+        }
+    }
+    return json as QuizData;
+};
 
-  } catch (error) {
-    console.error("Quiz generation failed:", error);
-    throw error;
-  }
+export const parseQuizString = (text: string): QuizData => {
+    try {
+        return cleanAndParse(text);
+    } catch (error) {
+        console.error("JSON Parse Error:", error);
+        throw new Error("Failed to parse JSON text. Please ensure it is valid JSON matching the template.");
+    }
+}
+
+export const parseQuizJSON = (file: File): Promise<QuizData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const data = cleanAndParse(text);
+        resolve(data);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+        reject(new Error("Failed to parse JSON file. Please ensure the file contains valid JSON matching the template."));
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read file."));
+    reader.readAsText(file);
+  });
 };

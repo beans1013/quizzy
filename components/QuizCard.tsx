@@ -17,17 +17,17 @@ const QuizCard: React.FC<QuizCardProps> = ({
   showResult 
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 transition-all hover:shadow-md">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6 transition-all hover:shadow-md dark:hover:shadow-slate-900/50">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Question {question.id}</h3>
+        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Question {question.id}</h3>
         {showResult && (
           <div className="flex items-center">
             {selectedOptionIndex === question.correctAnswerIndex ? (
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center">
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center">
                 <CheckCircle2 className="w-4 h-4 mr-1" /> Correct
               </span>
             ) : (
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center">
+              <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium flex items-center">
                 <XCircle className="w-4 h-4 mr-1" /> Incorrect
               </span>
             )}
@@ -35,28 +35,28 @@ const QuizCard: React.FC<QuizCardProps> = ({
         )}
       </div>
 
-      <div className="mb-6 text-slate-700 text-lg">
+      <div className="mb-6 text-slate-700 dark:text-slate-300 text-lg">
         <MathRenderer content={question.text} />
       </div>
 
       <div className="space-y-3">
         {question.options.map((option, index) => {
-          let optionStyle = "border-slate-200 hover:border-indigo-300 hover:bg-slate-50";
-          let icon = <Circle className="w-5 h-5 text-slate-400" />;
+          let optionStyle = "border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-750";
+          let icon = <Circle className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
           
           if (showResult) {
             if (index === question.correctAnswerIndex) {
-              optionStyle = "border-green-500 bg-green-50";
-              icon = <CheckCircle2 className="w-5 h-5 text-green-600" />;
+              optionStyle = "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600";
+              icon = <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />;
             } else if (index === selectedOptionIndex && index !== question.correctAnswerIndex) {
-              optionStyle = "border-red-500 bg-red-50";
-              icon = <XCircle className="w-5 h-5 text-red-600" />;
+              optionStyle = "border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600";
+              icon = <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />;
             } else {
-              optionStyle = "border-slate-100 opacity-60";
+              optionStyle = "border-slate-100 dark:border-slate-700 opacity-60";
             }
           } else if (selectedOptionIndex === index) {
-            optionStyle = "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600";
-            icon = <div className="w-5 h-5 rounded-full border-[5px] border-indigo-600" />;
+            optionStyle = "border-indigo-600 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 ring-1 ring-indigo-600 dark:ring-indigo-400";
+            icon = <div className="w-5 h-5 rounded-full border-[5px] border-indigo-600 dark:border-indigo-400" />;
           }
 
           return (
@@ -68,7 +68,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
             >
               <div className="mt-1 flex-shrink-0">{icon}</div>
               <div className="flex-grow">
-                <MathRenderer content={option} className="text-slate-800" />
+                <MathRenderer content={option} className="text-slate-800 dark:text-slate-200" />
               </div>
             </button>
           );
@@ -76,9 +76,9 @@ const QuizCard: React.FC<QuizCardProps> = ({
       </div>
 
       {showResult && (
-        <div className="mt-6 pt-6 border-t border-slate-100 animate-fade-in-up">
-          <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Explanation</h4>
-          <div className="bg-indigo-50 rounded-lg p-4 text-slate-800">
+        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 animate-fade-in-up">
+          <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Explanation</h4>
+          <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 text-slate-800 dark:text-slate-200 border border-indigo-100 dark:border-indigo-900/50">
              <MathRenderer content={question.explanation} />
           </div>
         </div>

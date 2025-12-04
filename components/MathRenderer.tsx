@@ -10,7 +10,7 @@ interface MathRendererProps {
 
 const MathRenderer: React.FC<MathRendererProps> = ({ content, className = '' }) => {
   return (
-    <div className={`prose prose-slate max-w-none ${className}`}>
+    <div className={`prose prose-slate dark:prose-invert max-w-none ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex]}
