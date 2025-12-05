@@ -336,7 +336,7 @@ export const BreachProtocol: React.FC<BreachProtocolProps> = ({ onSuccess, onClo
                                  ? 'border-green-500 text-green-400' 
                                  : 'border-yellow-600/50 text-yellow-600'
                              }`}>
-                                 REWARD: {target.reward}
+                                 REWARD: §{target.reward}
                              </div>
                          </div>
                          <div className="flex space-x-2">
@@ -356,7 +356,7 @@ export const BreachProtocol: React.FC<BreachProtocolProps> = ({ onSuccess, onClo
              <div className="mt-8 border-t border-zinc-800 pt-6">
                  <div className="flex justify-between items-center mb-4">
                      <span className="text-xs font-mono text-zinc-500">TOTAL_REWARD</span>
-                     <span className="text-xl font-black text-yellow-400 font-mono tracking-tighter">{totalReward} <span className="text-xs text-yellow-600">CREDS</span></span>
+                     <span className="text-xl font-black text-yellow-400 font-mono tracking-tighter">§{totalReward}</span>
                  </div>
 
                  {gameStatus === 'active' && (

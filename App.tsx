@@ -8,6 +8,7 @@ import BlackjackGame from './components/BlackjackGame';
 import { Terminal, RefreshCw, Trophy, ArrowRight, Copy, Check, FileCode, Zap, Clock, AlertTriangle, User, ShieldAlert, LogIn, Star, Edit2, X, BrainCircuit, Dices, RotateCcw } from 'lucide-react';
 
 const TIME_PER_QUESTION_SEC = 300;
+const EURODOLLARS_PER_QUESTION = 50;
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
@@ -15,6 +16,7 @@ const App: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [score, setScore] = useState(0);
   const [rawScore, setRawScore] = useState(0);
+  const [earnedCurrency, setEarnedCurrency] = useState(0);
   const [copied, setCopied] = useState(false);
   const [keyCopied, setKeyCopied] = useState(false);
   
@@ -77,6 +79,7 @@ const App: React.FC = () => {
     setUserAnswers({});
     setScore(0);
     setRawScore(0);
+    setEarnedCurrency(0);
     // Initialize Timer
     setTimeLeft(data.questions.length * TIME_PER_QUESTION_SEC);
     setIsOvertime(false);
@@ -188,9 +191,13 @@ const App: React.FC = () => {
     }
 
     setScore(finalScore);
+
+    // Calculate Payout
+    const payout = finalScore * EURODOLLARS_PER_QUESTION;
+    setEarnedCurrency(payout);
     
     // Update User Score persistently
-    const updatedUser = updateUserScore(finalScore);
+    const updatedUser = updateUserScore(payout);
     if (updatedUser) {
         setUser(updatedUser);
     }
@@ -205,6 +212,7 @@ const App: React.FC = () => {
     setUserAnswers({});
     setScore(0);
     setRawScore(0);
+    setEarnedCurrency(0);
     setJsonText('');
     setTimeLeft(0);
     setIsOvertime(false);
@@ -301,7 +309,7 @@ const App: React.FC = () => {
                     </div>
                     <div className="px-3 py-1 flex items-center space-x-2">
                         <Star className="w-3 h-3 text-yellow-400" />
-                        <span className="font-mono text-xs text-zinc-400">REP: <span className="text-yellow-400 font-bold">{user.totalScore}</span></span>
+                        <span className="font-mono text-xs text-zinc-400">EURODOLLARS: <span className="text-yellow-400 font-bold">§{user.totalScore}</span></span>
                     </div>
                 </div>
             )}
@@ -583,15 +591,28 @@ const App: React.FC = () => {
                                     <span>TIME PENALTY APPLIED (-{Math.ceil(quizData.questions.length * 0.2)})</span>
                                 </div>
                             )}
-                            <div className="flex items-center border border-zinc-600 bg-black/40 p-4 min-w-[200px]">
-                                <Trophy className={`w-8 h-8 mr-4 ${isOvertime ? 'text-red-500' : 'text-yellow-400'}`} />
-                                <div>
-                                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Final Grade</p>
-                                    <p className="text-3xl font-black text-white leading-none">
-                                        {score} <span className="text-lg text-zinc-600 font-normal">/ {quizData.questions.length}</span>
-                                    </p>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex items-center border border-zinc-600 bg-black/40 p-4 min-w-[180px]">
+                                    <Trophy className={`w-8 h-8 mr-4 ${isOvertime ? 'text-red-500' : 'text-yellow-400'}`} />
+                                    <div>
+                                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Final Grade</p>
+                                        <p className="text-3xl font-black text-white leading-none">
+                                            {score} <span className="text-lg text-zinc-600 font-normal">/ {quizData.questions.length}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center border border-zinc-600 bg-black/40 p-4 min-w-[180px]">
+                                    <div className="w-8 h-8 mr-4 bg-yellow-400/10 text-yellow-400 flex items-center justify-center rounded-sm border border-yellow-400/50 font-black text-xl">§</div>
+                                    <div>
+                                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Payout</p>
+                                        <p className="text-3xl font-black text-yellow-400 leading-none">
+                                            +{earnedCurrency}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+
                             </div>
                         )}
                     </div>

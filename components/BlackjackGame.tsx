@@ -60,9 +60,9 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
       if (rewardAmount > 0) {
         updateUserScore(rewardAmount);
         onScoreUpdate(user.totalScore + rewardAmount);
-        setMessage(`SYSTEM BREACHED. EXTRACTED ${rewardAmount} CREDS.`);
+        setMessage(`SYSTEM BREACHED. EXTRACTED §${rewardAmount}.`);
       } else {
-        setMessage("BREACH SUCCESSFUL BUT NO DATA EXTRACTED.");
+        setMessage("BREACH SUCCESSFUL BUT NO FUNDS FOUND.");
       }
       setIsBreaching(false);
   };
@@ -160,7 +160,7 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
             break;
         case 'push':
             winnings = bet; // Return bet
-            setMessage('TIE. CREDITS REFUNDED.');
+            setMessage('TIE. FUNDS REFUNDED.');
             setSfx('push');
             break;
         case 'bust':
@@ -215,11 +215,11 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
             <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">
                 <span className="text-pink-500">NET</span>RUNNER <span className="text-cyan-400">CASINO</span>
             </h2>
-            <p className="text-xs text-zinc-500 font-mono">PROTOCOL: BLACKJACK // WAGER: REPUTATION</p>
+            <p className="text-xs text-zinc-500 font-mono">PROTOCOL: BLACKJACK // WAGER: EURODOLLARS</p>
           </div>
           <div className="text-right">
              <div className="text-xs text-zinc-500 font-mono uppercase">Current Balance</div>
-             <div className="text-2xl font-bold text-yellow-400 font-mono">{user.totalScore} REP</div>
+             <div className="text-2xl font-bold text-yellow-400 font-mono">§{user.totalScore}</div>
           </div>
       </div>
 
@@ -237,7 +237,7 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
                  <div className="flex items-center justify-center space-x-2">
                      <button onClick={() => setTempBetInput(Math.max(10, parseInt(tempBetInput) - 10).toString())} className="p-2 border border-zinc-700 hover:border-cyan-400 text-zinc-400 hover:text-cyan-400 transition">-</button>
                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-mono">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-mono">§</span>
                         <input 
                             type="number" 
                             value={tempBetInput}
@@ -320,7 +320,7 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
                 <div className="flex flex-col items-center mt-auto">
                     <div className="text-xs font-mono text-zinc-500 mb-2 uppercase tracking-widest flex items-center">
                         Runner (You) 
-                        <span className="ml-2 bg-zinc-800 text-zinc-300 px-1 text-[10px]">Bet: {bet}</span>
+                        <span className="ml-2 bg-zinc-800 text-zinc-300 px-1 text-[10px]">Bet: §{bet}</span>
                     </div>
                     <div className="flex space-x-2 sm:space-x-4 mb-4">
                          {playerHand.map((card, idx) => (
