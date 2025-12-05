@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { parseQuizJSON, parseQuizString, PROMPT_TEMPLATE } from './services/geminiService';
+import { parseQuizJSON, parseQuizString, DEFAULT_REQUIREMENTS, JSON_STRUCTURE_INSTRUCTION } from './services/geminiService';
 import { initializeUser, recoverUser, updateUserScore, updateUsername } from './services/authService';
 import { AppStatus, QuizData, UserProfile } from './types';
 import FileUpload from './components/FileUpload';
 import QuizCard from './components/QuizCard';
 import BlackjackGame from './components/BlackjackGame';
-import { Terminal, RefreshCw, Trophy, ArrowRight, Copy, Check, FileCode, Zap, Clock, AlertTriangle, User, ShieldAlert, LogIn, Star, Edit2, X, BrainCircuit, Dices } from 'lucide-react';
+import { Terminal, RefreshCw, Trophy, ArrowRight, Copy, Check, FileCode, Zap, Clock, AlertTriangle, User, ShieldAlert, LogIn, Star, Edit2, X, BrainCircuit, Dices, RotateCcw } from 'lucide-react';
 
 const TIME_PER_QUESTION_SEC = 300;
 
@@ -18,6 +18,9 @@ const App: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [keyCopied, setKeyCopied] = useState(false);
   
+  // Prompt Customization State
+  const [customRequirements, setCustomRequirements] = useState(DEFAULT_REQUIREMENTS);
+
   // User Auth State
   const [user, setUser] = useState<UserProfile | null>(null);
   const [showRecoveryWarning, setShowRecoveryWarning] = useState(true);
@@ -106,9 +109,14 @@ const App: React.FC = () => {
   };
 
   const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(PROMPT_TEMPLATE);
+    const fullPrompt = `${customRequirements}\n\n${JSON_STRUCTURE_INSTRUCTION}`;
+    navigator.clipboard.writeText(fullPrompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleResetPrompt = () => {
+      setCustomRequirements(DEFAULT_REQUIREMENTS);
   };
 
   const handleCopyKey = () => {
@@ -415,9 +423,10 @@ const App: React.FC = () => {
                     </h1>
                     <div className="h-px w-24 bg-cyan-500 mx-auto mb-6 shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
                     <p className="text-zinc-400 font-mono text-sm md:text-base max-w-xl mx-auto">
-                        // SYSTEM: Initialize external AI model (ChatGPT, Claude, Gemini).<br/>
-                        // PROCESS: Generate Quiz JSON.<br/>
-                        // INPUT: Inject data below for rendering.
+                        SEQUENCE: <br/>
+                        // 1. Customize & Copy the prompt in the 'Acquire Protocol' section.<br/>
+                        // 2. Execute it in your preferred AI model.<br/>
+                        // 3. Inject the result below.
                     </p>
                     </div>
 
@@ -430,27 +439,48 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="bg-[#050505] p-6 h-full flex flex-col">
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center space-x-3">
                                     <span className="flex items-center justify-center w-6 h-6 bg-yellow-400 text-black font-bold text-xs font-mono">01</span>
                                     <h2 className="text-lg font-bold text-white uppercase tracking-wider">Acquire Protocol</h2>
                                 </div>
-                                <button 
-                                    onClick={handleCopyPrompt}
-                                    className={`flex items-center px-4 py-1.5 text-xs font-bold uppercase tracking-widest border transition-all ${copied ? 'border-green-500 text-green-500 bg-green-900/10' : 'border-zinc-700 text-zinc-400 hover:border-cyan-400 hover:text-cyan-400'}`}
-                                >
-                                    {copied ? <Check className="w-3 h-3 mr-2" /> : <Copy className="w-3 h-3 mr-2" />}
-                                    {copied ? 'COPIED' : 'COPY PROMPT'}
-                                </button>
+                                <div className="flex items-center space-x-2">
+                                     <button 
+                                        onClick={handleResetPrompt}
+                                        title="Reset to Default"
+                                        className="p-1.5 text-zinc-600 hover:text-white transition-colors"
+                                     >
+                                        <RotateCcw className="w-3 h-3" />
+                                     </button>
+                                     <button 
+                                        onClick={handleCopyPrompt}
+                                        className={`flex items-center px-4 py-1.5 text-xs font-bold uppercase tracking-widest border transition-all ${copied ? 'border-green-500 text-green-500 bg-green-900/10' : 'border-zinc-700 text-zinc-400 hover:border-cyan-400 hover:text-cyan-400'}`}
+                                     >
+                                        {copied ? <Check className="w-3 h-3 mr-2" /> : <Copy className="w-3 h-3 mr-2" />}
+                                        {copied ? 'COPIED' : 'COPY PROMPT'}
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div className="relative flex-grow group-hover:shadow-[0_0_20px_rgba(250,204,21,0.05)] transition-shadow">
-                                <div className="absolute inset-0 bg-zinc-800/20 pointer-events-none border border-zinc-800/50"></div>
+                            {/* Editable Requirements */}
+                            <div className="relative flex-grow flex flex-col gap-2">
+                                <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Mission Parameters (Editable)</label>
                                 <textarea 
-                                    readOnly
-                                    className="w-full h-80 p-4 text-xs font-mono bg-[#0a0a0a] border border-zinc-800 text-zinc-400 focus:outline-none resize-none leading-relaxed custom-scrollbar selection:bg-cyan-900 selection:text-cyan-100"
-                                    value={PROMPT_TEMPLATE}
+                                    className="w-full h-48 p-3 text-xs font-mono bg-[#0a0a0a] border border-zinc-800 text-cyan-400 focus:border-cyan-500 focus:outline-none resize-none leading-relaxed custom-scrollbar selection:bg-cyan-900 selection:text-cyan-100 placeholder-zinc-800"
+                                    value={customRequirements}
+                                    onChange={(e) => setCustomRequirements(e.target.value)}
+                                    spellCheck={false}
                                 />
+                                
+                                {/* Locked JSON Instruction */}
+                                <label className="text-[10px] uppercase font-bold text-zinc-600 tracking-wider flex items-center mt-2">
+                                    Data Structure Protocol <span className="ml-2 px-1 bg-zinc-800 text-zinc-500 text-[9px] rounded-sm">LOCKED</span>
+                                </label>
+                                <div className="h-32 p-3 bg-zinc-950/50 border border-zinc-800/50 text-zinc-600 font-mono text-[10px] overflow-hidden opacity-70 select-none">
+                                    <div className="pointer-events-none">
+                                        {JSON_STRUCTURE_INSTRUCTION}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

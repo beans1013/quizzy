@@ -1,6 +1,6 @@
 import { QuizData } from "../types";
 
-export const PROMPT_TEMPLATE = `You are an expert University Tutor in Mathematics and Chemistry.
+export const DEFAULT_REQUIREMENTS = `You are an expert University Tutor in Mathematics and Chemistry.
 Analyze the content provided by the user.
 Create a Multiple Choice Quiz (MCQ) based on the key concepts, problems, and formulas.
 
@@ -11,9 +11,9 @@ Requirements:
    - One option must be the correct answer.
    - The other three options must be "distractors": plausible but incorrect answers.
 4. Provide a clear, step-by-step explanation for the correct solution.
-5. Format all math/chemical formulas in the question, options, and explanation using standard LaTeX enclosed in single dollar signs (e.g., $E=mc^2$).
+5. Format all math/chemical formulas in the question, options, and explanation using standard LaTeX enclosed in single dollar signs (e.g., $E=mc^2$).`;
 
-IMPORTANT: Return the response strictly as a raw JSON object with the following structure:
+export const JSON_STRUCTURE_INSTRUCTION = `IMPORTANT: Return the response strictly as a raw JSON object with the following structure:
 
 {
   "title": "Quiz Title",
@@ -27,6 +27,8 @@ IMPORTANT: Return the response strictly as a raw JSON object with the following 
     }
   ]
 }`;
+
+export const PROMPT_TEMPLATE = `${DEFAULT_REQUIREMENTS}\n\n${JSON_STRUCTURE_INSTRUCTION}`;
 
 export const parseQuizString = (text: string): QuizData => {
   try {
