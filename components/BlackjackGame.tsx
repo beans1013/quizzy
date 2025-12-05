@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { UserProfile } from '../types';
 import { updateUserScore } from '../services/authService';
-import { Dices, ShieldAlert, CreditCard, RefreshCw, Hand, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
+import { BreachProtocol } from './BreachProtocol';
+import { Dices, ShieldAlert, CreditCard, RefreshCw, Hand, AlertTriangle, TrendingUp, TrendingDown, Terminal, Cpu } from 'lucide-react';
 
 interface Card {
   suit: string;
@@ -25,6 +26,9 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
   const [bet, setBet] = useState<number>(0);
   const [message, setMessage] = useState('');
   const [tempBetInput, setTempBetInput] = useState('10');
+  
+  // Hacking State
+  const [isBreaching, setIsBreaching] = useState(false);
 
   // Audio simulation (visual only for now)
   const [sfx, setSfx] = useState<string | null>(null);
@@ -52,11 +56,23 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
     return score;
   };
 
-  const handleFaucet = () => {
-      const bonus = 50;
-      updateUserScore(bonus);
-      onScoreUpdate(user.totalScore + bonus);
-      setMessage("EMERGENCY FUNDS TRANSFERRED. DON'T MAKE IT A HABIT.");
+  const handleBreachSuccess = (rewardAmount: number) => {
+      if (rewardAmount > 0) {
+        updateUserScore(rewardAmount);
+        onScoreUpdate(user.totalScore + rewardAmount);
+        setMessage(`SYSTEM BREACHED. EXTRACTED ${rewardAmount} CREDS.`);
+      } else {
+        setMessage("BREACH SUCCESSFUL BUT NO DATA EXTRACTED.");
+      }
+      setIsBreaching(false);
+  };
+
+  const handleBreachClose = () => {
+      setIsBreaching(false);
+      // If closed without success (and user has no money), show msg
+      if (user.totalScore <= 0) {
+          setMessage("BREACH ABORTED. RETRY AVAILABLE.");
+      }
   };
 
   const placeBet = () => {
@@ -187,6 +203,12 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
 
   return (
     <div className="w-full max-w-4xl mx-auto animate-fade-in pb-20">
+      
+      {/* Breach Protocol Overlay */}
+      {isBreaching && (
+          <BreachProtocol onSuccess={handleBreachSuccess} onClose={handleBreachClose} />
+      )}
+
       {/* Header / Stats */}
       <div className="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
           <div>
@@ -250,12 +272,15 @@ const BlackjackGame: React.FC<BlackjackGameProps> = ({ user, onScoreUpdate }) =>
                              <span className="text-xs font-bold uppercase">Wallet Depleted</span>
                          </div>
                          <button 
-                            onClick={handleFaucet}
-                            className="text-xs font-mono border border-dashed border-zinc-600 hover:border-green-500 hover:text-green-500 px-4 py-2 flex items-center mx-auto transition-colors"
+                            onClick={() => setIsBreaching(true)}
+                            className="w-full group text-xs font-mono font-bold bg-zinc-900/50 border border-red-500/50 hover:bg-red-950/30 hover:border-red-500 hover:text-white text-red-400 px-4 py-3 flex items-center justify-center mx-auto transition-all shadow-[0_0_15px_rgba(220,38,38,0.2)]"
                          >
-                            <CreditCard className="w-3 h-3 mr-2" />
-                            HACK LOAN SERVER (+50)
+                            <Cpu className="w-4 h-4 mr-2 animate-pulse" />
+                            INITIATE BREACH PROTOCOL
                          </button>
+                         <p className="mt-2 text-[10px] text-zinc-600 font-mono">
+                             WARNING: UNAUTHORIZED SYSTEM ACCESS DETECTED.
+                         </p>
                      </div>
                  )}
              </div>
