@@ -24,3 +24,11 @@ export interface QuizResult {
   total: number;
   answers: Record<number, number>; // questionId -> selectedOptionIndex
 }
+
+export interface UserProfile {
+  id: string; // e.g. user_84920
+  recoveryKey: string; // e.g. neon-flux-matrix-core
+  createdAt: number;
+  totalScore: number;
+  quizzesCompleted: number;
+}
